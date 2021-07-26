@@ -1,0 +1,33 @@
+# Maintainer: rajan pandey <pandey11rajan@gmail.com>
+pkgname=heera-dock
+pkgver=v1.0
+pkgrel=1
+pkgdesc="Heera Dock"
+arch=('x86_64')
+url="https://github.com/heera-os/heera-dock.git"
+license=('GPL3')
+groups=('heera')
+depends=('heera-user-interface' 'heera-system-library' 'qt5-declarative' 'kwindowsystem')
+makedepends=('git' 'cmake' 'ninja' 'qt5-tools' )
+provides=("${pkgname}")
+conflicts=("${pkgname}")
+source=("${pkgname}::git+${url}")
+md5sums=('SKIP')
+
+pkgver() {
+        cd "$srcdir/${pkgname}"
+
+	printf "%s" "$(git describe)"
+}
+
+build() {
+	cd "$srcdir/${pkgname}"
+        cmake -B build -G Ninja
+	cmake --build build
+}
+
+package() {
+	cd "$srcdir/${pkgname}/build"
+	DESTDIR="$pkgdir/" cmake --install .
+}
+

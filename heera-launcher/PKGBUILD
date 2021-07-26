@@ -1,0 +1,39 @@
+# Maintainer: rajan pandey <pandey11rajan@gmail.com>
+pkgname=heera-launcher
+pkgver=v1.0
+pkgrel=1
+pkgdesc="Heera Launcher"
+arch=('x86_64')
+url="https://github.com/heera-os/heera-launcher.git"
+license=('GPL3')
+groups=('heera')
+depends=('qt5-declarative' 'kwindowsystem')
+makedepends=('git' 'cmake' 'qt5-tools' 'qt5-quickcontrols2' 'extra-cmake-modules' 'gcc' 'ninja')
+provides=("${pkgname}")
+conflicts=("${pkgname}")
+source=("${pkgname}::git+${url}")
+md5sums=('SKIP')
+
+pkgver() {
+        cd "$srcdir/${pkgname}"
+
+	printf "%s" "$(git describe)"
+}
+
+build() {
+	cd "$srcdir/${pkgname}"
+        mkdir -p build && cd build
+        rm -f CMakeCache.txt
+	cmake \
+		-G Ninja \
+		-DCMAKE_BUILD_TYPE=Release \
+		..
+	cmake --build .
+}
+
+package() {
+	cd "$srcdir/${pkgname}"
+        cd build
+	DESTDIR="$pkgdir/" cmake --install .
+}
+

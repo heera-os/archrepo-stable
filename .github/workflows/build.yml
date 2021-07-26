@@ -1,0 +1,45 @@
+name: package
+
+on:
+  push:
+  schedule:
+    - cron: 0 6 * * * # Run at about 11:30 PM Indian Standard Time
+
+env:
+  PKGS_DIR: /tmp/__pkgs__
+  CCACHE_DIR: /tmp/ccache
+  GIT_REMOTE: https://${{ github.actor }}:${{ github.token }}@github.com/${{ github.repository }}.git
+  GIT_BRANCH: gh-pages
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:base-devel
+    steps:
+      - uses: actions/checkout@v1 # checkout@v2 doesn't support submodules (not with default git version)
+        with:
+          submodules: 'true'
+      - uses: actions/cache@v2
+        if: always()
+        with:
+          key: cache-heera
+          path: ${{ env.CCACHE_DIR }}
+      - run: pacman -Syu --noconfirm
+      - name: Initial Custom local repository
+        run: ./action.sh create_local
+      - name: Add local repository  # this contains the latest built packages
+        run: printf "[pkgs]\nSigLevel = Optional\nServer = file://"${{ env.PKGS_DIR }}"/\$arch\n" >> /etc/pacman.conf
+      - name: Add heera github repository # this contains the previous built packages, helps pacman find missing deps
+        run: printf "[heera]\nSigLevel = Optional\nServer = https://heera-os.github.io/archrepo-stable/\$arch\n" >> /etc/pacman.conf
+      - run: ./action.sh initialize
+      - run: ./action.sh ci_build
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ env.GIT_BRANCH }}
+          path: ${{ env.GIT_BRANCH }}
+          fetch-depth: 0
+      - run: ./action.sh verify_packages
+        continue-on-error: true
+      - run: ./action.sh publish
+

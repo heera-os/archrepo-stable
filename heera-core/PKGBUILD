@@ -1,0 +1,39 @@
+# Maintainer: rajan pandey <pandey11rajan@gmail.com>
+pkgname=heera-core
+pkgver=v1.0
+pkgrel=1
+pkgdesc="Heera Core"
+arch=('x86_64')
+url="https://github.com/heera-os/heera-core.git"
+license=('GPL3')
+groups=('heera')
+depends=('qt5-declarative' 'qhotkey' 'polkit-qt5' 'kwindowsystem' 'libpulse' 'libxtst')
+makedepends=('git' 'qt5-quickcontrols2' 'qt5-tools' 'cmake' 'extra-cmake-modules' 'heera-user-interface' 'ninja')
+provides=("${pkgname}")
+conflicts=("${pkgname}")
+source=("${pkgname}::git+${url}")
+md5sums=('SKIP')
+
+pkgver() {
+        cd "$srcdir/${pkgname}"
+
+	printf "%s" "$(git describe)"
+}
+
+build() {
+	cd "$srcdir/${pkgname}"
+        mkdir -p build && cd build
+        rm -f CMakeCache.txt
+	cmake \
+		-G Ninja \
+		-DCMAKE_BUILD_TYPE=Release \
+		..
+	cmake --build .
+}
+
+package() {
+	cd "$srcdir/${pkgname}"
+        cd build
+	DESTDIR="$pkgdir/" cmake --install .
+}
+

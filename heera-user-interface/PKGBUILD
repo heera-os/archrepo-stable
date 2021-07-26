@@ -1,0 +1,40 @@
+# Maintainer: rajan pandey <pandey11rajan@gmail.com>
+pkgname=heera-user-interface
+pkgver=v1.0
+pkgrel=1
+pkgdesc="Heera User Interface"
+arch=('x86_64')
+url="https://github.com/heera-os/heera-user-interface.git"
+license=('GPL3')
+groups=('heera')
+depends=('qt5-declarative' 'qt5-quickcontrols2' 'kwindowsystem')	# libqt5x11extras5-dev libkf5windowsystem-dev qtbase5-private-dev libxcb1-dev libxcb-shape0-dev libxcb-icccm4-dev
+makedepends=('git' 'cmake' 'extra-cmake-modules' 'gcc' 'ninja')
+provides=("${pkgname}")
+conflicts=("${pkgname}")
+source=("${pkgname}::git+${url}")
+md5sums=('SKIP')
+
+pkgver() {
+        cd "$srcdir/${pkgname}"
+
+	printf "%s" "$(git describe)"
+}
+
+build() {
+	cd "$srcdir/${pkgname}"
+        mkdir -p build && cd build
+        rm -f CMakeCache.txt
+	cmake \
+		-G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		..
+	cmake --build .
+}
+
+package() {
+	cd "$srcdir/${pkgname}"
+        cd build
+	DESTDIR="$pkgdir/" cmake --install .
+}
+
