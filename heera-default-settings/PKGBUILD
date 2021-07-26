@@ -19,6 +19,12 @@ prepare() {
         cd "$srcdir/${pkgname}"   
 }
 
+prepare() {
+	cd "$srcdir/${pkgname}"
+	
+	git checkout $(git describe)
+}
+
 pkgver() {
         cd "$srcdir/${pkgname}"
 

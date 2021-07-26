@@ -21,6 +21,12 @@ pkgver() {
 	printf "%s" "$(git describe)"
 }
 
+prepare() {
+	cd "$srcdir/${pkgname}"
+	
+	git checkout $(git describe)
+}
+
 build() {
 	cd "$srcdir/${pkgname}"
         mkdir -p build && cd build
