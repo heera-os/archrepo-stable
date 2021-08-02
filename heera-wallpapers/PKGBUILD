@@ -18,13 +18,13 @@ md5sums=('SKIP')
 pkgver() {
         cd "$srcdir/${pkgname}"
 
-	printf "%s" "$(git describe)"
+	printf "%s" "$(git describe --tags --abbrev=0)"
 }
 
 prepare() {
 	cd "$srcdir/${pkgname}"
 	
-	git checkout $(git describe)
+	git checkout $(git describe --tags --abbrev=0)
 }
 
 build() {
